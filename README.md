@@ -1,3 +1,7 @@
+develop contains:
+- fix getlocalip () for the cli as for the web, like before
+- add vscode tasks for cli test, using .env configs to execute
+
 changes (newest to latest):
 Commit 64a5bbe
 - .gitignore to prevent images and display.json from uploading
