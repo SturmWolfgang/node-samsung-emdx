@@ -3,7 +3,7 @@ develop contains:
 - add vscode tasks for cli test, using .env configs to execute
 
 changes (newest to latest):
-Commit 64a5bbe
+Commit 64a5bbe (main)
 - .gitignore to prevent images and display.json from uploading
 - fix getlocalip() for error: Network: http://TypeError: Cannot read properties of undefined (reading 'length'):3001
 
