@@ -1,3 +1,8 @@
+changes (newest to latest):
+Commit 64a5bbe
+- .gitignore to prevent images and display.json from uploading
+- fix getlocalip() for error: Network: http://TypeError: Cannot read properties of undefined (reading 'length'):3001
+
 # Samsung EMDX
 
 Control a Samsung EMDX E-Paper Display from the command line or a web interface. Push images to the display over your local network using the Samsung MDC protocol.
