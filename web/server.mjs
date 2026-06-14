@@ -2,11 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
+import os from 'os';
 
 import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
-import getLocalIp from '@loxjs/node-local-ip';
 import sharp from 'sharp';
 import { Device } from '../lib/index.mjs';
 import { fetchFromProvider, downloadImage, BUILT_IN_PROVIDERS } from './providers.mjs';
@@ -22,7 +22,43 @@ if (fs.existsSync(rootEnv) && !process.env.DISPLAY_HOST) {
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
-const localIp = getLocalIp();
+
+// Robust local IP detection function
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+
+  // Iterate through all network interfaces
+  for (const interfaceName in interfaces) {
+    const iface = interfaces[interfaceName];
+
+    // Iterate through all addresses for this interface
+    for (const addr of iface) {
+      // Skip internal (loopback) and non-IPv4 addresses
+      if (addr.internal || addr.family !== 'IPv4') continue;
+
+      // Skip link-local addresses (169.254.x.x)
+      if (addr.address.startsWith('169.254.')) continue;
+
+      addresses.push(addr.address);
+    }
+  }
+
+  // Return the first non-loopback IPv4 address, or undefined if none found
+  return addresses.length > 0 ? addresses[0] : undefined;
+}
+
+let localIp;
+try {
+  localIp = getLocalIpAddress();
+  console.log('🔍 Local IP detection:', localIp || 'No valid IP found');
+  if (localIp) {
+    console.log('   Available interfaces:', Object.keys(os.networkInterfaces()).join(', '));
+  }
+} catch (err) {
+  console.log('⚠️  Local IP detection failed:', err.message);
+  localIp = undefined;
+}
 
 const pendingImages = new Map();
 
@@ -36,8 +72,12 @@ function ensureDisplaysDir() {
 }
 
 function readJson(filePath, fallback) {
-  try { return JSON.parse(fs.readFileSync(filePath, 'utf-8')); }
-  catch { return fallback; }
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    return content.trim() === '' ? fallback : JSON.parse(content);
+  } catch (err) {
+    return fallback;
+  }
 }
 
 function writeJson(filePath, data) {
@@ -369,7 +409,8 @@ async function pollForWake(displayId) {
 }
 
 // Resume pollers on startup
-for (const display of loadDisplays()) {
+const displays = loadDisplays() || [];
+for (const display of displays) {
   const schedule = loadDisplaySchedule(display.id);
   if (schedule.enabled && loadDisplayMode(display.id) === 'scheduled') {
     console.log(`📅 [${display.id.slice(0, 8)}] Resuming wake poller for "${display.name}"`);
@@ -808,8 +849,10 @@ if (fs.existsSync(distPath)) {
 }
 
 app.listen(PORT, () => {
-  const n = loadDisplays().length;
+  const displays = loadDisplays() || [];
+  const n = displays.length;
+  const safeLocalIp = typeof localIp === 'string' ? localIp : 'localhost';
   console.log(`\n🚀 Samsung EMDX Web Server (${n} display${n !== 1 ? 's' : ''})`);
   console.log(`   Local:   http://localhost:${PORT}`);
-  console.log(`   Network: http://${localIp}:${PORT}\n`);
+  console.log(`   Network: http://${safeLocalIp}:${PORT}\n`);
 });
