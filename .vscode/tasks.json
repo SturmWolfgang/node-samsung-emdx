@@ -1,0 +1,94 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "EMDX Status",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        ".vscode/emdx-status-wrapper.mjs"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "EMDX Wake",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        ".vscode/emdx-wake-wrapper.mjs"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "EMDX Sleep",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        ".vscode/emdx-sleep-wrapper.mjs"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "EMDX Show Image",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        ".vscode/emdx-show-image-wrapper.mjs"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "host",
+      "type": "promptString",
+      "description": "Enter the display host IP address"
+    },
+    {
+      "id": "pin",
+      "type": "promptString",
+      "description": "Enter the display PIN"
+    },
+    {
+      "id": "image",
+      "type": "promptString",
+      "description": "Select an image file from sample_images",
+      "options": [
+        "51420303517_1ba1c997c2_o.png",
+        "exo.jpg"
+      ]
+    }
+  ]
+}

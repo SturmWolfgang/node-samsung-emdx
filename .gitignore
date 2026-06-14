@@ -7,3 +7,6 @@ web/.queue/
 web/.displays/*.jpg
 last-push.jpg
 web/.displays/displays.json
+sample_images/
+.last_uploaded_image
+*.log

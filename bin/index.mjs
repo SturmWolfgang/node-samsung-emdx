@@ -2,14 +2,39 @@
 
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 import { Device } from '../lib/index.mjs';
 import express from 'express';
 import getPort from 'get-port';
-import getLocalIp from '@loxjs/node-local-ip';
 import { v4 as uuidv4 } from 'uuid';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+
+// Robust local IP detection function (same as web server)
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+
+  // Iterate through all network interfaces
+  for (const interfaceName in interfaces) {
+    const iface = interfaces[interfaceName];
+
+    // Iterate through all addresses for this interface
+    for (const addr of iface) {
+      // Skip internal (loopback) and non-IPv4 addresses
+      if (addr.internal || addr.family !== 'IPv4') continue;
+
+      // Skip link-local addresses (169.254.x.x)
+      if (addr.address.startsWith('169.254.')) continue;
+
+      addresses.push(addr.address);
+    }
+  }
+
+  // Return the first non-loopback IPv4 address, or undefined if none found
+  return addresses.length > 0 ? addresses[0] : undefined;
+}
 
 const deviceOptions = yargs => yargs
   .option('host', {
@@ -42,7 +67,7 @@ yargs(hideBin(process.argv))
         required: false,
         type: 'string',
         describe: 'Local IP address to use for the server',
-        default: getLocalIp(),
+        default: getLocalIpAddress(),
       })
       .option('sleep-after', {
         type: 'number',
